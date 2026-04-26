@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>USTAAD — AI English-Urdu Grammar Coach</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0fdf8;--bg2:#e6faf2;--card:#ffffff;--border:#c6e9db;
+  --text:#0d2b22;--text2:#3d6b5a;--text3:#7aaa96;
+  --green:#10b981;--green2:#059669;--teal:#0d9488;
+  --amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;
+  --urdu-font:'Amiri',serif;
+  --heading:'Playfair Display',serif;
+  --body:'DM Sans',sans-serif;
+  --radius:14px;--radius-sm:8px;
+  --shadow:0 2px 16px rgba(16,185,129,0.08);
+  --shadow-lg:0 8px 40px rgba(16,185,129,0.13);
+}
+.dark{
+  --bg:#0a1f17;--bg2:#0f2920;--card:#122b22;--border:#1e4a38;
+  --text:#e2f5ec;--text2:#7fc9aa;--text3:#3d7a62;
+  --shadow:0 2px 16px rgba(0,0,0,0.4);
+  --shadow-lg:0 8px 40px rgba(0,0,0,0.5);
+}
+body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.3s,color 0.3s}
+#app{max-width:920px;margin:0 auto;padding:0 16px 60px}
+
+/* HEADER */
+.header{display:flex;align-items:center;justify-content:space-between;padding:18px 0 12px;border-bottom:1.5px solid var(--border);margin-bottom:24px;flex-wrap:wrap;gap:10px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--green),var(--teal));border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:var(--urdu-font);font-size:21px;color:#fff;font-weight:700;flex-shrink:0}
+.logo-text h1{font-family:var(--heading);font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.5px}
+.logo-text p{font-size:11px;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:1px}
+.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn-icon{width:36px;height:36px;border:1.5px solid var(--border);background:var(--card);border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all 0.2s;color:var(--text);flex-shrink:0}
+.btn-icon:hover{background:var(--bg2);border-color:var(--green)}
+.user-chip{display:flex;align-items:center;gap:7px;padding:6px 12px;background:var(--card);border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:500;color:var(--text2)}
+.user-avatar{width:22px;height:22px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;flex-shrink:0}
+
+/* AUTH */
+.auth-screen{max-width:420px;margin:60px auto;background:var(--card);border-radius:20px;padding:36px;box-shadow:var(--shadow-lg);border:1.5px solid var(--border)}
+.auth-logo{width:68px;height:68px;background:linear-gradient(135deg,var(--green),var(--teal));border-radius:18px;display:flex;align-items:center;justify-content:center;font-family:var(--urdu-font);font-size:30px;color:#fff;font-weight:700;margin:0 auto 14px}
+.auth-title{font-family:var(--heading);font-size:28px;font-weight:700;text-align:center;color:var(--text);margin-bottom:4px}
+.auth-subtitle{font-size:13px;color:var(--text2);text-align:center;margin-bottom:28px;line-height:1.5}
+.auth-screen h2{font-family:var(--heading);font-size:22px;font-weight:700;margin-bottom:6px;color:var(--text)}
+.auth-screen .sub{font-size:13px;color:var(--text2);margin-bottom:22px}
+.form-group{margin-bottom:15px}
+.form-group label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:6px}
+.form-input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-family:var(--body);font-size:14px;outline:none;transition:border-color 0.2s}
+.form-input:focus{border-color:var(--green)}
+.btn-primary{width:100%;padding:13px;background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;border:none;border-radius:10px;font-family:var(--body);font-size:15px;font-weight:600;cursor:pointer;transition:opacity 0.2s;margin-top:4px}
+.btn-primary:hover{opacity:0.9}
+.auth-toggle{text-align:center;margin-top:16px;font-size:13px;color:var(--text2)}
+.auth-toggle a{color:var(--green);cursor:pointer;font-weight:600;text-decoration:underline}
+.auth-error{color:var(--red);font-size:13px;padding:9px 12px;background:#fee2e2;border-radius:8px;margin-bottom:14px;text-align:center}
+.dark .auth-error{background:#450a0a;color:#fca5a5}
+
+/* TABS */
+.tabs{display:flex;gap:4px;background:var(--bg2);padding:4px;border-radius:12px;margin-bottom:24px;border:1.5px solid var(--border)}
+.tab{flex:1;padding:9px 4px;border:none;background:transparent;border-radius:9px;font-family:var(--body);font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.tab.active{background:var(--card);color:var(--green2);box-shadow:var(--shadow)}
+.tab:hover:not(.active){background:var(--card);opacity:0.7}
+
+/* PRACTICE */
+.practice-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:620px){.practice-grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.card-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.card-label-left{display:flex;align-items:center;gap:6px}
+.lang-dot{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;flex-shrink:0}
+
+textarea{width:100%;min-height:148px;padding:14px;border:2px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.65;resize:vertical;outline:none;transition:border-color 0.2s}
+textarea:focus{border-color:var(--green)}
+textarea::placeholder{color:var(--text3)}
+.char-count{font-size:11px;color:var(--text3);text-align:right;margin-top:5px}
+
+.input-actions{display:flex;align-items:center;gap:7px;margin-top:10px;flex-wrap:wrap}
+.btn-sm{padding:7px 13px;border:1.5px solid var(--border);background:var(--card);border-radius:8px;font-family:var(--body);font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.2s;white-space:nowrap}
+.btn-sm:hover{border-color:var(--green);color:var(--green2)}
+.btn-sm.recording{border-color:var(--red);color:var(--red);animation:pulse 1s infinite}
+.btn-sm.active-listen{border-color:var(--teal);color:var(--teal)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.tone-select{padding:7px 10px;border:1.5px solid var(--border);background:var(--card);border-radius:8px;font-family:var(--body);font-size:12px;color:var(--text2);cursor:pointer;outline:none;transition:border-color 0.2s}
+.tone-select:focus{border-color:var(--green)}
+.clear-btn{padding:5px 10px;background:transparent;border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--text3);cursor:pointer;transition:all 0.2s;margin-left:auto}
+.clear-btn:hover{border-color:var(--red);color:var(--red)}
+
+/* RESULT */
+.result-area{min-height:148px}
+.result-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:148px;color:var(--text3);text-align:center;gap:8px;padding:20px}
+.result-placeholder .big-icon{font-size:38px;opacity:0.35}
+.result-placeholder p{font-size:13px}
+.result-placeholder .urdu-hint{font-family:var(--urdu-font);font-size:16px;direction:rtl}
+
+.loading-dots{display:flex;gap:6px;align-items:center;justify-content:center;padding:32px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--green);animation:bounce 1.2s infinite}
+.dot:nth-child(2){animation-delay:0.2s}
+.dot:nth-child(3){animation-delay:0.4s}
+@keyframes bounce{0%,100%{transform:translateY(0);opacity:0.6}50%{transform:translateY(-11px);opacity:1}}
+
+.lang-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;margin-bottom:10px}
+.lang-badge.en{background:#dcfce7;color:#15803d}
+.lang-badge.ur{background:#fef3c7;color:#b45309}
+.lang-badge.mixed{background:#ede9fe;color:#7c3aed}
+.lang-badge.ro{background:#fce7f3;color:#be185d}
+.dark .lang-badge.en{background:#14532d;color:#86efac}
+.dark .lang-badge.ur{background:#78350f;color:#fde68a}
+.dark .lang-badge.mixed{background:#3b0764;color:#d8b4fe}
+.dark .lang-badge.ro{background:#500724;color:#fbcfe8}
+
+.corrected-english{font-size:16px;font-weight:500;color:var(--text);line-height:1.65;margin-bottom:12px}
+.urdu-text{font-family:var(--urdu-font);font-size:22px;direction:rtl;text-align:right;color:var(--text2);line-height:1.9;padding:12px 14px;background:var(--bg2);border-radius:8px;margin-bottom:12px;border-right:3px solid var(--green)}
+.explanation{font-size:13px;color:var(--text2);line-height:1.65;padding:10px 12px;background:var(--bg2);border-radius:8px;border-left:3px solid var(--amber)}
+
+.score-bar-wrap{margin-top:14px}
+.score-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.score-label{font-size:12px;color:var(--text3);font-weight:500}
+.score-value{font-size:14px;font-weight:700;color:var(--green2)}
+.score-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.score-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--teal));border-radius:3px;transition:width 0.7s ease}
+
+.error-msg{color:var(--red);font-size:13px;padding:12px 14px;background:#fee2e2;border-radius:8px;line-height:1.5}
+.dark .error-msg{background:#450a0a;color:#fca5a5}
+
+/* EXAMPLES BAR */
+.examples-bar{margin-top:16px;padding:14px 16px;background:var(--card);border:1.5px solid var(--border);border-radius:12px;display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.examples-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;padding-top:8px;white-space:nowrap}
+.example-btn{padding:6px 12px;border:1.5px solid var(--border);background:var(--bg2);border-radius:20px;font-family:var(--body);font-size:12px;color:var(--text2);cursor:pointer;transition:all 0.2s;line-height:1.4}
+.example-btn:hover{border-color:var(--green);color:var(--green2);background:var(--card)}
+
+/* HISTORY */
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.section-title{font-size:14px;font-weight:600;color:var(--text2)}
+.history-item{padding:16px;border:1.5px solid var(--border);border-radius:12px;margin-bottom:12px;background:var(--card);transition:border-color 0.2s}
+.history-item:hover{border-color:var(--green)}
+.history-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px}
+.history-date{font-size:11px;color:var(--text3)}
+.history-original{font-size:13px;color:var(--text2);margin-bottom:5px;text-decoration:line-through;opacity:0.6}
+.history-corrected{font-size:14px;font-weight:500;color:var(--text)}
+.history-urdu{font-family:var(--urdu-font);font-size:17px;direction:rtl;text-align:right;color:var(--text2);margin-top:7px;padding-top:7px;border-top:1px solid var(--border)}
+.empty-state{text-align:center;padding:56px 24px;color:var(--text3)}
+.empty-icon{font-size:52px;margin-bottom:12px;opacity:0.35}
+.empty-state p{font-size:14px;line-height:1.6}
+
+/* DASHBOARD */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:480px){.stats-grid{grid-template-columns:1fr 1fr}}
+.stat-card{background:var(--card);border:1.5px solid var(--border);border-radius:13px;padding:20px 14px;text-align:center;box-shadow:var(--shadow)}
+.stat-num{font-size:34px;font-weight:700;font-family:var(--heading);color:var(--green2);line-height:1}
+.stat-label{font-size:11px;color:var(--text3);margin-top:6px;font-weight:500;text-transform:uppercase;letter-spacing:0.5px}
+.streak-wrap{text-align:center;margin-bottom:22px}
+.streak-badge{display:inline-flex;align-items:center;gap:7px;padding:8px 18px;background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:24px;font-size:14px;font-weight:600;color:#b45309}
+.dark .streak-badge{background:linear-gradient(135deg,#78350f,#92400e);color:#fde68a}
+
+.chart-card{background:var(--card);border:1.5px solid var(--border);border-radius:13px;padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
+.chart-title{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:14px}
+.lang-row{margin-bottom:11px}
+.lang-row-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px}
+.lang-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.lang-fill{height:100%;border-radius:3px;transition:width 0.7s ease}
+
+.mini-history .mini-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);gap:10px}
+.mini-history .mini-row:last-child{border-bottom:none}
+.mini-text{color:var(--text2);flex:1;font-size:13px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.mini-score{font-weight:600;color:var(--green2);font-size:12px;flex-shrink:0}
+
+/* NOTIFICATION */
+.notif{position:fixed;top:20px;right:20px;padding:12px 18px;background:var(--green);color:#fff;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;animation:slideIn 0.3s ease;box-shadow:0 4px 20px rgba(16,185,129,0.35);max-width:280px}
+.notif.error{background:var(--red);box-shadow:0 4px 20px rgba(239,68,68,0.35)}
+@keyframes slideIn{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* FOOTER */
+.footer{text-align:center;padding:28px 0 0;font-size:12px;color:var(--text3);border-top:1px solid var(--border);margin-top:32px}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+// ─── CONFIG ────────────────────────────────────────────────
+const GEMINI_KEY = 'AIzaSyDlMeH0GmREj7sMh50FqfGxNgLhBe4nYwM';
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
+
+// ─── LOCAL STORAGE HELPERS ─────────────────────────────────
+const ls = {
+  get: k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+  set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  del: k => { try { localStorage.removeItem(k); } catch {} }
+};
+
+// ─── APP STATE ─────────────────────────────────────────────
+let state = {
+  dark: ls.get('ustaad_dark') || false,
+  user: ls.get('ustaad_user') || null,
+  tab: 'practice',
+  authMode: 'login',
+  authError: '',
+  loginEmail: '', loginPass: '', loginName: '',
+  inputText: '',
+  result: null,
+  loading: false,
+  error: null,
+  recording: false,
+  speaking: false,
+  tone: 'general',
+  history: ls.get('ustaad_history') || [],
+  notif: null,
+  notifType: 'success',
+  debounceTimer: null,
+};
+
+let mediaRecognition = null;
+let notifTimer = null;
+
+// ─── STATE MANAGEMENT ──────────────────────────────────────
+function setState(update) {
+  Object.assign(state, typeof update === 'function' ? update(state) : update);
+  render();
+}
+
+function showNotif(msg, type = 'success', duration = 2800) {
+  if (notifTimer) clearTimeout(notifTimer);
+  setState({ notif: msg, notifType: type });
+  notifTimer = setTimeout(() => setState({ notif: null }), duration);
+}
+
+// ─── GEMINI API ────────────────────────────────────────────
+async function callGemini(text) {
+  const toneMap = { professional: 'Use formal/professional tone.', friendly: 'Use friendly, warm conversational tone.', general: 'Use neutral, clear tone.' };
+  const toneNote = toneMap[state.tone] || toneMap.general;
+
+  const prompt = `You are Ustaad, a bilingual English-Urdu language coach for Pakistani learners. ${toneNote}
+
+User input: "${text}"
+
+Instructions:
+1. Detect the input language: English, Urdu (Arabic script), Romanized Urdu (Urdu words in English letters), or Mixed
+2. If English with grammar errors: correct the grammar, fix spelling, improve sentence structure
+3. If Urdu script (Arabic letters): translate to correct English
+4. If Romanized Urdu (like "kal market gaya tha"): translate to correct English  
+5. If Mixed (English+Urdu): handle correction and translation
+6. Always provide: (a) corrected/translated English sentence, (b) that English sentence translated to Urdu script, (c) explanation, (d) accuracy score 0-100
+
+Return ONLY this JSON (no markdown, no backticks, no extra text):
+{"detectedLanguage":"English","correctedEnglish":"corrected sentence here","urduTranslation":"اردو ترجمہ یہاں","explanation":"1-2 sentences explaining what was corrected or translated","score":85}`;
+
+  const res = await fetch(GEMINI_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.1, maxOutputTokens: 600 }
+    })
+  });
+  if (!res.ok) throw new Error('API error ' + res.status);
+  const data = await res.json();
+  const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  const clean = raw.replace(/```json\n?|```\n?/g, '').trim();
+  return JSON.parse(clean);
+}
+
+function triggerCorrection(text) {
+  if (state.debounceTimer) clearTimeout(state.debounceTimer);
+  if (!text || text.trim().length < 3) {
+    setState({ result: null, loading: false, error: null });
+    return;
+  }
+  setState({ loading: true, error: null, result: null });
+  const timer = setTimeout(async () => {
+    try {
+      const result = await callGemini(text.trim());
+      const entry = {
+        id: Date.now(),
+        original: text.trim(),
+        corrected: result.correctedEnglish,
+        urdu: result.urduTranslation,
+        explanation: result.explanation,
+        score: Math.min(100, Math.max(0, result.score || 0)),
+        lang: result.detectedLanguage,
+        date: new Date().toLocaleString('en-PK', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+      };
+      const newHistory = [entry, ...(state.history || [])].slice(0, 30);
+      ls.set('ustaad_history', newHistory);
+      setState({ result, loading: false, history: newHistory, error: null });
+    } catch (e) {
+      setState({ loading: false, error: 'Could not reach AI. Please check your internet connection and try again.' });
+    }
+  }, 600);
+  setState({ debounceTimer: timer });
+}
+
+// ─── AUTH ──────────────────────────────────────────────────
+function handleAuth() {
+  const { authMode, loginEmail, loginPass, loginName } = state;
+  if (!loginEmail.trim() || !loginPass.trim()) {
+    setState({ authError: 'Please fill in all required fields.' }); return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail.trim())) {
+    setState({ authError: 'Please enter a valid email address.' }); return;
+  }
+  if (loginPass.length < 6) {
+    setState({ authError: 'Password must be at least 6 characters.' }); return;
+  }
+  const users = ls.get('ustaad_users') || {};
+  if (authMode === 'signup') {
+    if (users[loginEmail.trim()]) { setState({ authError: 'This email is already registered. Please sign in.' }); return; }
+    const name = loginName.trim() || loginEmail.split('@')[0];
+    users[loginEmail.trim()] = { password: loginPass, name };
+    ls.set('ustaad_users', users);
+    const user = { email: loginEmail.trim(), name };
+    ls.set('ustaad_user', user);
+    setState({ user, loginEmail: '', loginPass: '', loginName: '', authError: '' });
+    showNotif('Welcome to USTAAD! خوش آمدید 🎉');
+  } else {
+    const u = users[loginEmail.trim()];
+    if (!u || u.password !== loginPass) { setState({ authError: 'Incorrect email or password. Please try again.' }); return; }
+    const user = { email: loginEmail.trim(), name: u.name };
+    ls.set('ustaad_user', user);
+    setState({ user, loginEmail: '', loginPass: '', authError: '' });
+    showNotif('Welcome back, ' + user.name + '! 👋');
+  }
+}
+
+function logout() {
+  if (state.debounceTimer) clearTimeout(state.debounceTimer);
+  ls.del('ustaad_user');
+  setState({ user: null, inputText: '', result: null, tab: 'practice', error: null });
+  showNotif('Signed out successfully');
+}
+
+// ─── MIC + SPEECH ──────────────────────────────────────────
+function toggleMic() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { showNotif('Microphone not supported in this browser. Try Chrome.', 'error'); return; }
+  if (state.recording && mediaRecognition) {
+    mediaRecognition.stop(); setState({ recording: false }); return;
+  }
+  mediaRecognition = new SR();
+  mediaRecognition.continuous = false;
+  mediaRecognition.interimResults = false;
+  mediaRecognition.lang = 'en-US';
+  mediaRecognition.onresult = (e) => {
+    const transcript = e.results[0][0].transcript;
+    const inp = document.getElementById('main-input');
+    if (inp) inp.value = transcript;
+    setState({ inputText: transcript, recording: false });
+    triggerCorrection(transcript);
+  };
+  mediaRecognition.onerror = (e) => {
+    setState({ recording: false });
+    if (e.error === 'not-allowed') showNotif('Microphone permission denied', 'error');
+  };
+  mediaRecognition.onend = () => setState({ recording: false });
+  mediaRecognition.start();
+  setState({ recording: true });
+  showNotif('Listening... speak now 🎤');
+}
+
+function speakText(text) {
+  if (!text || !window.speechSynthesis) { showNotif('Text-to-speech not supported', 'error'); return; }
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'en-US';
+  utterance.rate = 0.88;
+  utterance.pitch = 1;
+  utterance.onend = () => setState({ speaking: false });
+  utterance.onerror = () => setState({ speaking: false });
+  window.speechSynthesis.speak(utterance);
+  setState({ speaking: true });
+}
+
+function clearInput() {
+  if (state.debounceTimer) clearTimeout(state.debounceTimer);
+  const inp = document.getElementById('main-input');
+  if (inp) inp.value = '';
+  setState({ inputText: '', result: null, loading: false, error: null });
+}
+
+// ─── THEME ─────────────────────────────────────────────────
+function toggleDark() {
+  const dark = !state.dark;
+  ls.set('ustaad_dark', dark);
+  setState({ dark });
+}
+
+// ─── HELPERS ───────────────────────────────────────────────
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function getLangClass(lang) {
+  if (!lang) return 'en';
+  const l = lang.toLowerCase();
+  if (l.includes('roman')) return 'ro';
+  if (l.includes('mixed')) return 'mixed';
+  if (l.includes('urdu')) return 'ur';
+  return 'en';
+}
+
+function getLangLabel(lang) {
+  if (!lang) return '🇬🇧 English';
+  const l = lang.toLowerCase();
+  if (l.includes('roman')) return '🔤 Romanized Urdu';
+  if (l.includes('mixed')) return '🔀 Mixed';
+  if (l.includes('urdu')) return '🇵🇰 Urdu';
+  return '🇬🇧 English';
+}
+
+// ─── RENDER ────────────────────────────────────────────────
+function render() {
+  const app = document.getElementById('app');
+  if (!app) return;
+  document.body.className = state.dark ? 'dark' : '';
+
+  if (!state.user) {
+    app.innerHTML = renderAuth();
+    attachAuthEvents();
+  } else {
+    app.innerHTML = renderMain();
+    attachMainEvents();
+  }
+}
+
+// ─── AUTH SCREEN ───────────────────────────────────────────
+function renderAuth() {
+  const isLogin = state.authMode === 'login';
+  return `
+    ${state.notif ? `<div class="notif ${state.notifType === 'error' ? 'error' : ''}">${escHtml(state.notif)}</div>` : ''}
+    <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 16px">
+      <div class="auth-screen">
+        <div class="auth-logo">استاد</div>
+        <div class="auth-title">USTAAD</div>
+        <div class="auth-subtitle">AI-powered English ↔ Urdu Grammar Coach<br>for Pakistani learners</div>
+        <h2>${isLogin ? 'Sign In' : 'Create Account'}</h2>
+        <p class="sub">${isLogin ? 'Welcome back! Please enter your details.' : 'Start your language learning journey.'}</p>
+        ${state.authError ? `<div class="auth-error">${escHtml(state.authError)}</div>` : ''}
+        ${!isLogin ? `<div class="form-group"><label>Full Name</label><input class="form-input" id="auth-name" type="text" placeholder="Ali Raza" value="${escHtml(state.loginName)}" autocomplete="name" /></div>` : ''}
+        <div class="form-group"><label>Email Address</label><input class="form-input" id="auth-email" type="email" placeholder="ali@example.com" value="${escHtml(state.loginEmail)}" autocomplete="email" /></div>
+        <div class="form-group"><label>Password${!isLogin ? ' (min 6 characters)' : ''}</label><input class="form-input" id="auth-pass" type="password" placeholder="••••••••" value="${escHtml(state.loginPass)}" autocomplete="${isLogin ? 'current-password' : 'new-password'}" /></div>
+        <button class="btn-primary" id="auth-submit">${isLogin ? 'Sign In →' : 'Create Account →'}</button>
+        <div class="auth-toggle">${isLogin ? "Don't have an account? " : 'Already have an account? '}
+          <a id="auth-toggle">${isLogin ? 'Sign up free' : 'Sign in'}</a>
+        </div>
+      </div>
+      <div style="margin-top:14px"><button id="dark-toggle-auth" class="btn-icon">${state.dark ? '☀️' : '🌙'}</button></div>
+      <div style="text-align:center;margin-top:16px;font-size:12px;color:var(--text3)">Your data is saved only on your device. We don't collect anything.</div>
+    </div>`;
+}
+
+// ─── MAIN APP ──────────────────────────────────────────────
+function renderMain() {
+  return `
+    ${state.notif ? `<div class="notif ${state.notifType === 'error' ? 'error' : ''}">${escHtml(state.notif)}</div>` : ''}
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">استاد</div>
+        <div class="logo-text">
+          <h1>USTAAD</h1>
+          <p>Grammar Coach · مشق</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-icon" id="dark-toggle" title="Toggle dark mode">${state.dark ? '☀️' : '🌙'}</button>
+        <div class="user-chip">
+          <div class="user-avatar">${(state.user?.name || 'U').charAt(0).toUpperCase()}</div>
+          <span style="max-width:100px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${escHtml(state.user?.name || 'User')}</span>
+        </div>
+        <button class="btn-icon" id="logout-btn" title="Sign out">🚪</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab ${state.tab==='practice'?'active':''}" data-tab="practice">✏️ Practice</button>
+      <button class="tab ${state.tab==='history'?'active':''}" data-tab="history">📜 History</button>
+      <button class="tab ${state.tab==='dashboard'?'active':''}" data-tab="dashboard">📊 Dashboard</button>
+    </div>
+    ${state.tab==='practice' ? renderPractice() : state.tab==='history' ? renderHistory() : renderDashboard()}
+    <div class="footer">USTAAD · Data saved locally on your device · Made for Pakistani learners 🇵🇰</div>`;
+}
+
+// ─── PRACTICE TAB ──────────────────────────────────────────
+function renderPractice() {
+  return `
+    <div class="practice-grid">
+      <div>
+        <div class="card">
+          <div class="card-label">
+            <div class="card-label-left"><span class="lang-dot"></span> Your Input</div>
+            ${state.inputText ? `<button class="clear-btn" id="clear-btn">✕ Clear</button>` : ''}
+          </div>
+          <textarea id="main-input" placeholder="Type in English, Urdu, or Romanized Urdu…&#10;&#10;Examples:&#10;• my friend was eat a food&#10;• میرا دوست کھانا کھا رہا تھا&#10;• hoi my frend ware are you going">${escHtml(state.inputText)}</textarea>
+          <div class="char-count">${state.inputText.length} / 500 characters</div>
+          <div class="input-actions">
+            <button class="btn-sm ${state.recording ? 'recording' : ''}" id="mic-btn">${state.recording ? '⏹ Stop' : '🎤 Speak'}</button>
+            <select class="tone-select" id="tone-select" title="Select tone">
+              <option value="general" ${state.tone==='general'?'selected':''}>⚖️ General</option>
+              <option value="friendly" ${state.tone==='friendly'?'selected':''}>😊 Friendly</option>
+              <option value="professional" ${state.tone==='professional'?'selected':''}>💼 Professional</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-label">
+            <div class="card-label-left"><span class="lang-dot" style="background:var(--teal)"></span> AI Correction</div>
+            ${state.result ? `<button class="btn-sm ${state.speaking?'active-listen':''}" id="speak-btn">${state.speaking ? '⏹ Stop' : '🔊 Listen'}</button>` : ''}
+          </div>
+          <div class="result-area">${renderResult()}</div>
+        </div>
+      </div>
+    </div>
+    <div class="examples-bar">
+      <span class="examples-label">Try:</span>
+      ${[
+        'my friend was eat a food',
+        'میرا دوست کھانا کھا رہا تھا',
+        'hoi my frend ware are you going',
+        'why are not you there',
+        'she go market kal',
+        'i is happy',
+        'where are you going?'
+      ].map(ex => `<button class="example-btn" data-text="${escHtml(ex)}">${escHtml(ex)}</button>`).join('')}
+    </div>`;
+}
+
+function renderResult() {
+  if (state.loading) return `<div class="loading-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+  if (state.error) return `<div class="error-msg">⚠️ ${escHtml(state.error)}</div>`;
+  if (!state.result) return `
+    <div class="result-placeholder">
+      <div class="big-icon">✍️</div>
+      <p><strong>Start typing</strong> to see real-time corrections</p>
+      <p class="urdu-hint">لکھنا شروع کریں</p>
+      <p style="font-size:11px;margin-top:8px;opacity:0.7">Correction appears automatically after you stop typing</p>
+    </div>`;
+
+  const r = state.result;
+  const score = Math.min(100, Math.max(0, r.score || 0));
+  const scoreColor = score >= 80 ? 'var(--green2)' : score >= 60 ? 'var(--amber)' : 'var(--red)';
+  return `
+    <div class="lang-badge ${getLangClass(r.detectedLanguage)}">${getLangLabel(r.detectedLanguage)}</div>
+    <div class="corrected-english">${escHtml(r.correctedEnglish || '')}</div>
+    <div class="urdu-text">${escHtml(r.urduTranslation || '')}</div>
+    ${r.explanation ? `<div class="explanation">💡 ${escHtml(r.explanation)}</div>` : ''}
+    <div class="score-bar-wrap">
+      <div class="score-row">
+        <span class="score-label">Accuracy Score</span>
+        <span class="score-value" style="color:${scoreColor}">${score}%</span>
+      </div>
+      <div class="score-bar"><div class="score-fill" style="width:${score}%"></div></div>
+    </div>`;
+}
+
+// ─── HISTORY TAB ───────────────────────────────────────────
+function renderHistory() {
+  const h = state.history || [];
+  if (!h.length) return `
+    <div class="empty-state">
+      <div class="empty-icon">📜</div>
+      <p><strong>No corrections yet</strong><br>Start practicing and your corrections will appear here.</p>
+    </div>`;
+  return `
+    <div class="section-header">
+      <div class="section-title">${h.length} correction${h.length!==1?'s':''} saved on your device</div>
+      <button class="clear-btn" id="clear-history">🗑 Clear All</button>
+    </div>
+    ${h.map(item => `
+      <div class="history-item">
+        <div class="history-meta">
+          <span class="lang-badge ${getLangClass(item.lang)}" style="margin:0;font-size:10px">${getLangLabel(item.lang)}</span>
+          <span class="history-date">${escHtml(item.date||'')}</span>
+          <span style="font-size:12px;font-weight:700;color:var(--green2)">${item.score||0}%</span>
+        </div>
+        <div class="history-original">${escHtml(item.original||'')}</div>
+        <div class="history-corrected">${escHtml(item.corrected||'')}</div>
+        <div class="history-urdu">${escHtml(item.urdu||'')}</div>
+      </div>`).join('')}`;
+}
+
+// ─── DASHBOARD TAB ─────────────────────────────────────────
+function renderDashboard() {
+  const h = state.history || [];
+  const total = h.length;
+  const avgScore = total ? Math.round(h.reduce((a,b) => a+(b.score||0), 0) / total) : 0;
+
+  const days = new Set(h.map(item => item.date ? item.date.split(',')[0] : null).filter(Boolean));
+  const streak = Math.min(days.size, 30);
+
+  const counts = { English: 0, Urdu: 0, Romanized: 0, Mixed: 0 };
+  h.forEach(item => {
+    const l = (item.lang||'').toLowerCase();
+    if (l.includes('roman')) counts.Romanized++;
+    else if (l.includes('mixed')) counts.Mixed++;
+    else if (l.includes('urdu')) counts.Urdu++;
+    else counts.English++;
+  });
+
+  const colMap = { English: 'var(--green)', Urdu: 'var(--amber)', Romanized: 'var(--purple)', Mixed: 'var(--teal)' };
+
+  return `
+    <div class="streak-wrap">
+      <div class="streak-badge">🔥 ${streak} day${streak!==1?'s':''} streak</div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Corrections</div></div>
+      <div class="stat-card"><div class="stat-num">${avgScore}%</div><div class="stat-label">Avg Score</div></div>
+      <div class="stat-card"><div class="stat-num">${streak}</div><div class="stat-label">Day Streak 🔥</div></div>
+    </div>
+    ${total > 0 ? `
+    <div class="chart-card">
+      <div class="chart-title">Language Breakdown</div>
+      ${Object.entries(counts).filter(([,v])=>v>0).map(([k,v]) => {
+        const pct = Math.round((v/total)*100);
+        return `<div class="lang-row">
+          <div class="lang-row-label"><span>${k}</span><span>${v} (${pct}%)</span></div>
+          <div class="lang-bar"><div class="lang-fill" style="width:${pct}%;background:${colMap[k]}"></div></div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Recent Corrections</div>
+      <div class="mini-history">
+        ${h.slice(0,10).map(item => `
+          <div class="mini-row">
+            <div class="mini-text">${escHtml((item.corrected||'').substring(0,60))}${(item.corrected||'').length>60?'…':''}</div>
+            <div class="mini-score">${item.score||0}%</div>
+          </div>`).join('')}
+      </div>
+    </div>` : `<div class="empty-state"><div class="empty-icon">📊</div><p>Start practicing to see your stats!</p></div>`}`;
+}
+
+// ─── EVENT BINDING ─────────────────────────────────────────
+function attachAuthEvents() {
+  const get = id => document.getElementById(id);
+  get('auth-email')?.addEventListener('input', e => setState({ loginEmail: e.target.value, authError: '' }));
+  get('auth-pass')?.addEventListener('input', e => setState({ loginPass: e.target.value, authError: '' }));
+  get('auth-name')?.addEventListener('input', e => setState({ loginName: e.target.value }));
+  get('auth-submit')?.addEventListener('click', handleAuth);
+  get('auth-toggle')?.addEventListener('click', () => setState({ authMode: state.authMode==='login'?'signup':'login', authError: '' }));
+  get('dark-toggle-auth')?.addEventListener('click', toggleDark);
+  get('auth-pass')?.addEventListener('keydown', e => { if (e.key==='Enter') handleAuth(); });
+  get('auth-email')?.addEventListener('keydown', e => { if (e.key==='Enter') get('auth-pass')?.focus(); });
+}
+
+function attachMainEvents() {
+  const get = id => document.getElementById(id);
+
+  get('dark-toggle')?.addEventListener('click', toggleDark);
+  get('logout-btn')?.addEventListener('click', logout);
+
+  document.querySelectorAll('.tab[data-tab]').forEach(t =>
+    t.addEventListener('click', () => setState({ tab: t.dataset.tab }))
+  );
+
+  const inp = get('main-input');
+  if (inp) {
+    inp.addEventListener('input', e => {
+      const val = e.target.value.slice(0, 500);
+      if (e.target.value.length > 500) e.target.value = val;
+      setState({ inputText: val });
+      triggerCorrection(val);
+    });
+  }
+
+  get('mic-btn')?.addEventListener('click', toggleMic);
+
+  get('speak-btn')?.addEventListener('click', () => {
+    if (state.speaking) { window.speechSynthesis.cancel(); setState({ speaking: false }); }
+    else speakText(state.result?.correctedEnglish);
+  });
+
+  get('tone-select')?.addEventListener('change', e => {
+    setState({ tone: e.target.value });
+    if (state.inputText.trim().length >= 3) triggerCorrection(state.inputText);
+  });
+
+  get('clear-btn')?.addEventListener('click', clearInput);
+
+  get('clear-history')?.addEventListener('click', () => {
+    if (confirm('Clear all history? This cannot be undone.')) {
+      ls.del('ustaad_history');
+      setState({ history: [] });
+      showNotif('History cleared');
+    }
+  });
+
+  document.querySelectorAll('.example-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const text = btn.dataset.text;
+      const textarea = get('main-input');
+      if (textarea) textarea.value = text;
+      setState({ inputText: text });
+      triggerCorrection(text);
+    });
+  });
+}
+
+// ─── INIT ──────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
